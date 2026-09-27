@@ -7,6 +7,7 @@ function applySettings(settings) {
   document.documentElement.style.setProperty('--font-size', `${settings.fontSize}px`);
   document.documentElement.style.setProperty('--width', `${settings.width}px`);
 }
+function setFullscreen(enabled) { document.documentElement.dataset.fullscreen = enabled ? 'true' : 'false'; }
 function goTo(id) { const el = document.getElementById(id); if (el) el.scrollIntoView({block:'start'}); }
 function position() {
   const hs = [...document.querySelectorAll('h1,h2,h3,h4,h5,h6')];

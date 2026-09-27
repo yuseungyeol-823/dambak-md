@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-version=${1:-0.1.0}
+version=${1:-0.1.1}
 case "$version" in
   ''|*[!0-9.]*) echo "버전은 0.1.0처럼 입력해 주세요." >&2; exit 2 ;;
 esac

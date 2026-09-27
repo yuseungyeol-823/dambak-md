@@ -6,6 +6,7 @@ import UniformTypeIdentifiers
 
 struct ReaderWebView: NSViewRepresentable {
     @ObservedObject var model: AppModel
+    let isFullScreen: Bool
     func makeCoordinator() -> Coordinator { Coordinator(model: model) }
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
@@ -19,10 +20,15 @@ struct ReaderWebView: NSViewRepresentable {
         web.navigationDelegate = context.coordinator
         web.setValue(false, forKey: "drawsBackground")
         context.coordinator.web = web
+        context.coordinator.isFullScreen = isFullScreen
         model.webAction = { [weak coordinator = context.coordinator] action in coordinator?.perform(action) }
         return web
     }
     func updateNSView(_ web: WKWebView, context: Context) {
+        if context.coordinator.isFullScreen != isFullScreen {
+            context.coordinator.isFullScreen = isFullScreen
+            context.coordinator.perform(.fullscreen(isFullScreen))
+        }
         context.coordinator.imageHandler.base = model.currentURL?.deletingLastPathComponent()
         if context.coordinator.loadedID != model.navigationID, let page = model.rendered {
             context.coordinator.loadedID = model.navigationID
@@ -36,6 +42,7 @@ struct ReaderWebView: NSViewRepresentable {
     final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         weak var web: WKWebView?
         var loadedID: UUID?
+        var isFullScreen = false
         let model: AppModel
         let imageHandler = ImageHandler()
         init(model: AppModel) { self.model = model }
@@ -43,10 +50,10 @@ struct ReaderWebView: NSViewRepresentable {
             guard let body = message.body as? [String: Any], let type = body["type"] as? String else { return }
             switch type {
             case "ready":
-                perform(.settings(model.settings)); perform(.restore(model.targetPosition)); model.targetPosition = nil
+                perform(.settings(model.settings)); perform(.fullscreen(isFullScreen)); perform(.restore(model.targetPosition)); model.targetPosition = nil
                 if !model.searchQuery.isEmpty { perform(.search(model.searchQuery)) }
             case "link": model.resolveLink(body["value"] as? String ?? "")
-            case "heading": model.activeHeading = body["value"] as? String ?? ""
+            case "heading": model.reportActiveHeading(body["value"] as? String ?? "")
             case "copy": NSPasteboard.general.clearContents(); NSPasteboard.general.setString(body["value"] as? String ?? "", forType: .string)
             case "search": if let value = body["value"] as? [String: Int] { model.searchCount = value["count"] ?? 0; model.searchIndex = value["index"] ?? 0 }
             case "position": if let value = body["value"] as? [String: Any] { model.updatePosition(ReadingPosition(heading: value["heading"] as? String ?? "", fraction: value["fraction"] as? Double ?? 0, y: value["y"] as? Double ?? 0)) }
@@ -62,6 +69,7 @@ struct ReaderWebView: NSViewRepresentable {
             case .search(let query): function = "search(query)"; arguments = ["query":query]
             case .searchStep(let direction): function = "stepSearch(direction)"; arguments = ["direction":direction]
             case .restore(let position): function = "restorePosition(pos)"; arguments = ["pos": position.map { ["heading":$0.heading,"fraction":$0.fraction,"y":$0.y] } ?? NSNull()]
+            case .fullscreen(let enabled): function = "setFullscreen(enabled)"; arguments = ["enabled":enabled]
             }
             web.callAsyncJavaScript(function, arguments: arguments, in: nil, in: .page) { _ in }
         }

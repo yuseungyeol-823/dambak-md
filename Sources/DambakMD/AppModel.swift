@@ -44,6 +44,7 @@ struct ReadingSettings: Codable {
     private var fileWatcher: DispatchSourceFileSystemObject?
     private var debounce: DispatchWorkItem?
     private var loadingVersion = UUID()
+    private var pendingTOCSelection: (id: String, until: Date)?
     private let defaults = UserDefaults.standard
     var canBack: Bool { historyIndex > 0 }
     var canForward: Bool { historyIndex >= 0 && historyIndex < history.count - 1 }
@@ -82,6 +83,8 @@ struct ReadingSettings: Codable {
         _ = resolved.startAccessingSecurityScopedResource()
         currentURL = resolved
         rendered = nil
+        activeHeading = ""
+        pendingTOCSelection = nil
         error = nil
         targetPosition = restore
         currentPosition = restore
@@ -125,6 +128,16 @@ struct ReadingSettings: Codable {
     func back() { guard canBack else { return }; history[historyIndex].1 = currentPosition; historyIndex -= 1; let target = history[historyIndex]; open(target.0, restore: target.1, recordHistory: false) }
     func forward() { guard canForward else { return }; history[historyIndex].1 = currentPosition; historyIndex += 1; let target = history[historyIndex]; open(target.0, restore: target.1, recordHistory: false) }
     func updatePosition(_ pos: ReadingPosition) { currentPosition = pos; if let url = currentURL { updateRecentPosition(url, pos) } }
+    func selectHeading(_ id: String) {
+        activeHeading = id
+        pendingTOCSelection = (id, Date().addingTimeInterval(0.8))
+        webAction?(.heading(id))
+    }
+    func reportActiveHeading(_ id: String) {
+        if let pending = pendingTOCSelection, Date() < pending.until, id != pending.id { return }
+        pendingTOCSelection = nil
+        activeHeading = id
+    }
     private func updateRecentPosition(_ url: URL, _ pos: ReadingPosition?) { guard let index = recent.firstIndex(where: {$0.path == url.path}) else { return }; recent[index].position = pos; persistRecent() }
     private func persistRecent() { if let data = try? JSONEncoder().encode(recent) { defaults.set(data, forKey: "recent") } }
     func resolveLink(_ href: String) {
@@ -172,4 +185,4 @@ struct ReadingSettings: Codable {
 
 }
 
-enum WebAction { case settings(ReadingSettings), heading(String), search(String), searchStep(Int), restore(ReadingPosition?) }
+enum WebAction { case settings(ReadingSettings), heading(String), search(String), searchStep(Int), restore(ReadingPosition?), fullscreen(Bool) }

@@ -2,7 +2,9 @@
 
 macOS용 로컬 Markdown 읽기 앱입니다. 한 창에서 한 문서를 읽으며, 파일 선택·드래그 앤 드롭·Finder의 **다음으로 열기**를 지원합니다. 앱은 원본 Markdown 파일을 수정하지 않습니다.
 
-**바로 다운로드:** [최신 릴리스 페이지 열기](https://github.com/yuseungyeol-823/dambak-md/releases/latest) · [v0.1.0 macOS 앱 ZIP 직접 받기](https://github.com/yuseungyeol-823/dambak-md/releases/download/v0.1.0/DambakMD-v0.1.0-macOS.zip)
+**바로 다운로드:** [최신 릴리스 페이지 열기](https://github.com/yuseungyeol-823/dambak-md/releases/latest) · [v0.1.1 macOS 앱 ZIP 직접 받기](https://github.com/yuseungyeol-823/dambak-md/releases/download/v0.1.1/DambakMD-v0.1.1-macOS.zip)
+
+<img src="Assets/DambakMD-preview.png" width="112" alt="담백 MD 앱 아이콘">
 
 ## 요구 환경과 빌드
 
@@ -23,8 +25,8 @@ Finder에서 `.md` 또는 `.markdown` 파일을 우클릭해 **다음으로 열�
 
 ### 브라우저와 Finder로 설치
 
-1. [담백 MD v0.1.0 릴리스 페이지](https://github.com/yuseungyeol-823/dambak-md/releases/tag/v0.1.0)를 엽니다.
-2. **Assets**에서 **DambakMD-v0.1.0-macOS.zip**을 클릭해 다운로드합니다. GitHub가 자동으로 제공하는 **Source code (zip)**은 앱 실행 파일이 아니므로 선택하지 마세요.
+1. [담백 MD v0.1.1 릴리스 페이지](https://github.com/yuseungyeol-823/dambak-md/releases/tag/v0.1.1)를 엽니다.
+2. **Assets**에서 **DambakMD-v0.1.1-macOS.zip**을 클릭해 다운로드합니다. GitHub가 자동으로 제공하는 **Source code (zip)**은 앱 실행 파일이 아니므로 선택하지 마세요.
 3. Finder의 다운로드 폴더에서 ZIP을 더블클릭해 압축을 풉니다.
 4. 나온 **담백 MD.app**을 Finder의 **응용 프로그램** 폴더로 드래그한 뒤 실행합니다.
 
@@ -36,27 +38,29 @@ Finder에서 `.md` 또는 `.markdown` 파일을 우클릭해 **다음으로 열�
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/yuseungyeol-823/dambak-md/main/Scripts/install.sh -o /tmp/dambak-install.sh
-sh /tmp/dambak-install.sh 0.1.0
+sh /tmp/dambak-install.sh 0.1.1
 ```
 
-저장소를 이미 내려받았다면 `sh Scripts/install.sh 0.1.0`을 실행해도 됩니다.
+저장소를 이미 내려받았다면 `sh Scripts/install.sh 0.1.1`을 실행해도 됩니다.
 
 릴리스 ZIP과 체크섬은 GitHub Actions가 Intel·Apple Silicon 겸용 앱을 빌드해 게시합니다.
 
 ## 구현
 
 - GitHub Flavored Markdown: 제목, 강조, 취소선, 목록, 체크박스, 표, 코드, 링크, 이미지
-- H1~H6 목차, 중복 제목 앵커, 현재 읽는 제목 강조
+- H1~H6 목차, 중복 제목 앵커, 클릭 즉시 선택 표시와 현재 읽는 제목 강조
 - 본문 검색, 결과 수와 앞뒤 이동, 코드 복사
 - 상대 Markdown 링크와 내부 앵커, 외부 웹 링크는 기본 브라우저에서 열기
 - 최근 문서 20개, 읽던 위치와 설정 저장, 뒤로·앞으로 이동
 - 파일과 상위 디렉터리 변경 감시로 일반 저장 및 atomic save 반영
 - 로컬에서만 로드하는 구문 강조 자산
+- 전체 화면에서는 최근 문서 목록을 자동으로 접고 본문 너비를 화면에 맞게 넓힘. 사이드바 버튼으로 다시 펼칠 수 있음
 
 ## 구조와 의존성
 
 - `Sources/DambakCore`: Apple `swift-markdown` 0.9.x로 GFM 구문을 파싱하고 허용한 요소만 HTML로 변환합니다. cmark-gfm 기반의 관리되는 파서를 사용하기 위해 선택했습니다.
 - `Sources/DambakMD`: SwiftUI 화면, 문서 상태·감시, WKWebView 연결. `Resources/reader.js`가 검색·목차 위치·복사를 담당합니다.
+- `Assets/DambakMD.icns`: macOS 앱 아이콘. `Scripts/generate-icon.swift`에서 크기별 PNG와 `.icns`를 다시 생성할 수 있습니다.
 - `highlight.js` 11.12.0을 앱에 포함해 오프라인 구문 강조를 제공합니다. 라이선스는 `Sources/DambakMD/Resources/HIGHLIGHT-LICENSE.txt`에 있습니다.
 - `Samples`: 한글·공백 경로의 이미지, 중복 제목, 긴 문서, 안전성 입력을 포함한 검증 문서.
 

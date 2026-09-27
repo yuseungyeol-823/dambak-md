@@ -1,4 +1,5 @@
 import AppKit
+import DambakCore
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -48,19 +49,23 @@ struct ContentView: View {
     @FocusState private var searchFocused: Bool
     @State private var keyMonitor: Any?
     @State private var selectedRecentPath: String?
+    @State private var isFullScreen = false
+    @State private var fullScreenSidebarHidden = false
     var body: some View {
         VStack(spacing: 0) {
             toolbar
             Divider()
             if model.searchOpen { searchBar; Divider() }
             HStack(spacing: 0) {
-                if model.showSidebar { sidebar.frame(width: 224); Divider() }
+                if model.showSidebar && !fullScreenSidebarHidden { sidebar.frame(width: 224); Divider() }
                 mainContent.frame(maxWidth: .infinity, maxHeight: .infinity)
                 if model.settings.showTOC && model.currentURL != nil { Divider(); toc.frame(width: 222) }
             }
         }
         .background(Color(nsColor: .windowBackgroundColor))
         .onAppear {
+            isFullScreen = NSApp.keyWindow?.styleMask.contains(.fullScreen) ?? false
+            fullScreenSidebarHidden = isFullScreen
             keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
                 guard model.searchOpen else { return event }
                 if event.keyCode == 36 {
@@ -72,6 +77,14 @@ struct ContentView: View {
             }
         }
         .onDisappear { if let keyMonitor { NSEvent.removeMonitor(keyMonitor); self.keyMonitor = nil } }
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didEnterFullScreenNotification)) { _ in
+            isFullScreen = true
+            fullScreenSidebarHidden = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didExitFullScreenNotification)) { _ in
+            isFullScreen = false
+            fullScreenSidebarHidden = false
+        }
         .onDrop(of: [UTType.fileURL.identifier], isTargeted: nil) { providers in
             guard let provider = providers.first else { return false }
             _ = provider.loadObject(ofClass: URL.self) { url, _ in if let url { DispatchQueue.main.async { model.open(url) } } }
@@ -82,7 +95,10 @@ struct ContentView: View {
     }
     private var toolbar: some View {
         HStack(spacing: 13) {
-            Button { model.showSidebar.toggle() } label: { Image(systemName: "sidebar.left") }.help("최근 문서 표시 전환")
+            Button {
+                if isFullScreen { fullScreenSidebarHidden.toggle() }
+                else { model.showSidebar.toggle() }
+            } label: { Image(systemName: "sidebar.left") }.help("최근 문서 표시 전환")
             Button { model.back() } label: { Image(systemName: "chevron.left") }.disabled(!model.canBack).help("뒤로")
             Button { model.forward() } label: { Image(systemName: "chevron.right") }.disabled(!model.canForward).help("앞으로")
             Text(model.currentURL?.lastPathComponent ?? "담백 MD").font(.headline).lineLimit(1).frame(maxWidth: .infinity)
@@ -132,7 +148,7 @@ struct ContentView: View {
             VStack(spacing: 14) { Image(systemName: "exclamationmark.triangle").font(.largeTitle); Text(error).multilineTextAlignment(.center).foregroundStyle(.secondary); Button("다시 선택") { model.selectAccess() } }.padding(36)
         } else if model.currentURL == nil {
             VStack(spacing: 16) { Image(systemName: "doc.text").font(.system(size: 42)).foregroundStyle(.secondary); Text("Markdown 파일을 열거나 여기에 놓으세요").font(.title3); Button("파일 열기") { model.chooseFile() }.buttonStyle(.borderedProminent) }
-        } else if model.rendered != nil { ReaderWebView(model: model).id(model.currentURL) }
+        } else if model.rendered != nil { ReaderWebView(model: model, isFullScreen: isFullScreen).id(model.currentURL) }
         else { ProgressView("문서 여는 중…") }
     }
     private var toc: some View {
@@ -141,7 +157,7 @@ struct ContentView: View {
             if model.rendered?.headings.isEmpty != false { Text("이 문서에는 제목이 없습니다").font(.caption).foregroundStyle(.secondary).padding(14) }
             else { ScrollView { LazyVStack(alignment: .leading, spacing: 0) {
                 ForEach(model.rendered?.headings ?? []) { item in
-                    Button { model.webAction?(.heading(item.id)) } label: { Text(item.title).lineLimit(2).frame(maxWidth: .infinity, alignment: .leading).padding(.leading, CGFloat(item.level - 1) * 11).padding(.vertical, 6).padding(.horizontal, 12).background(model.activeHeading == item.id ? Color.accentColor.opacity(0.13) : .clear).cornerRadius(6) }.buttonStyle(.plain)
+                    TOCRow(item: item, model: model)
                 }
             }.padding(.horizontal, 6) } }
             Spacer(minLength: 0)
@@ -157,5 +173,50 @@ struct ContentView: View {
         Button("본문 너비 넓게") { model.settings.width = min(1200, model.settings.width + 80); model.saveSettings() }
         Button("본문 너비 좁게") { model.settings.width = max(560, model.settings.width - 80); model.saveSettings() }
         Text("본문 너비: \(model.settings.width)px")
+    }
+}
+
+private struct TOCRow: View {
+    let item: HeadingEntry
+    @ObservedObject var model: AppModel
+    @State private var isHovered = false
+
+    var body: some View {
+        let isActive = model.activeHeading == item.id
+        Button { model.selectHeading(item.id) } label: {
+            HStack(spacing: 8) {
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(isActive ? Color.accentColor : .clear)
+                    .frame(width: 3)
+                Text(item.title).lineLimit(2)
+            }
+            .padding(.leading, CGFloat(item.level - 1) * 11 + 10)
+            .padding(.trailing, 10)
+            .padding(.vertical, 7)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(TOCButtonStyle(isActive: isActive, isHovered: isHovered))
+        .onHover { isHovered = $0 }
+    }
+}
+
+private struct TOCButtonStyle: ButtonStyle {
+    let isActive: Bool
+    let isHovered: Bool
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(isActive ? Color.accentColor : Color.primary)
+            .background(
+                RoundedRectangle(cornerRadius: 7)
+                    .fill(configuration.isPressed ? Color.accentColor.opacity(0.28) :
+                          isActive ? Color.accentColor.opacity(0.16) :
+                          isHovered ? Color.primary.opacity(0.07) : .clear)
+            )
+            .scaleEffect(configuration.isPressed ? 0.985 : 1)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+            .animation(.easeOut(duration: 0.12), value: isHovered)
+            .animation(.easeOut(duration: 0.12), value: isActive)
     }
 }
