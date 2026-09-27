@@ -1,0 +1,27 @@
+name: macOS release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check renderer
+        run: swift run DambakSelfTest
+      - name: Build universal app
+        run: ./Scripts/build-universal.sh
+      - name: Archive and checksum
+        shell: bash
+        run: |
+          mkdir -p dist
+          tag="${GITHUB_REF_NAME}"
+          asset="DambakMD-${tag}-macOS.zip"
+          ditto -c -k --sequesterRsrc --keepParent '.build/담백 MD.app' "dist/${asset}"
+          (cd dist && shasum -a 256 "${asset}" > "${asset}.sha256")
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/* --verify-tag --generate-notes --title "담백 MD $GITHUB_REF_NAME"
