@@ -17,9 +17,18 @@ Finder에서 `.md` 또는 `.markdown` 파일을 우클릭해 **다음으로 열�
 
 핵심 로직 검증은 `swift run DambakSelfTest`로 실행합니다. 이 기기의 Command Line Tools에는 XCTest와 Swift Testing 모듈이 없어 별도 검증 실행 파일을 사용했습니다.
 
-## 다운로드와 터미널 설치
+## 다운로드와 설치
 
-[v0.1.0 릴리스](https://github.com/yuseungyeol-823/dambak-md/releases)에서 `DambakMD-v0.1.0-macOS.zip`을 받아 압축을 풀고 `담백 MD.app`을 `응용 프로그램`으로 옮길 수 있습니다. Apple Developer 서명·공증이 없는 개발 빌드이므로 첫 실행 시 macOS의 **개인정보 보호 및 보안**에서 사용자가 직접 열기를 허용해야 할 수 있습니다.
+### 브라우저와 Finder로 설치
+
+1. [담백 MD v0.1.0 릴리스 페이지](https://github.com/yuseungyeol-823/dambak-md/releases/tag/v0.1.0)를 엽니다.
+2. **Assets**에서 **DambakMD-v0.1.0-macOS.zip**을 클릭해 다운로드합니다. GitHub가 자동으로 제공하는 **Source code (zip)**은 앱 실행 파일이 아니므로 선택하지 마세요.
+3. Finder의 다운로드 폴더에서 ZIP을 더블클릭해 압축을 풉니다.
+4. 나온 **담백 MD.app**을 Finder의 **응용 프로그램** 폴더로 드래그한 뒤 실행합니다.
+
+이 빌드는 Apple Developer 공증을 받지 않았습니다. macOS가 첫 실행을 막으면 **시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기**에서 직접 허용할 수 있습니다. 자세한 절차는 [Apple의 앱 열기 안내](https://support.apple.com/ko-kr/102445)를 참고하세요.
+
+### 터미널로 설치
 
 터미널에서는 다음 두 명령으로 설치할 수 있습니다. 스크립트는 릴리스 ZIP과 SHA-256 파일을 받아 해시를 확인한 후 `~/Applications`에 앱을 복사합니다.
 
@@ -30,7 +39,7 @@ sh /tmp/dambak-install.sh 0.1.0
 
 저장소를 이미 내려받았다면 `sh Scripts/install.sh 0.1.0`을 실행해도 됩니다.
 
-태그 `v0.1.0`을 푸시하면 GitHub Actions가 Intel·Apple Silicon 겸용 앱을 빌드해 ZIP과 체크섬을 Release에 올립니다. 릴리스 워크플로는 저장소가 공개된 뒤 실행되며, 배포 자산이 올라오기 전에는 위 다운로드 명령이 동작하지 않습니다.
+릴리스 ZIP과 체크섬은 GitHub Actions가 Intel·Apple Silicon 겸용 앱을 빌드해 게시합니다.
 
 ## 구현
 
