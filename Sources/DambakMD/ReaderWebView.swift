@@ -11,8 +11,8 @@ struct ReaderWebView: NSViewRepresentable {
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
         config.defaultWebpagePreferences.allowsContentJavaScript = true
-        let script = (try? String(contentsOf: Bundle.module.url(forResource: "reader", withExtension: "js", subdirectory: "Resources")!, encoding: .utf8)) ?? ""
-        let highlight = (try? String(contentsOf: Bundle.module.url(forResource: "highlight.min", withExtension: "js", subdirectory: "Resources")!, encoding: .utf8)) ?? ""
+        let script = ReaderAssets.text("reader", extension: "js") ?? ""
+        let highlight = ReaderAssets.text("highlight.min", extension: "js") ?? ""
         config.userContentController.addUserScript(WKUserScript(source: highlight + "\n" + script, injectionTime: .atDocumentEnd, forMainFrameOnly: true))
         config.userContentController.add(context.coordinator, name: "reader")
         config.setURLSchemeHandler(context.coordinator.imageHandler, forURLScheme: "dambak-resource")
@@ -32,7 +32,7 @@ struct ReaderWebView: NSViewRepresentable {
         context.coordinator.imageHandler.base = model.currentURL?.deletingLastPathComponent()
         if context.coordinator.loadedID != model.navigationID, let page = model.rendered {
             context.coordinator.loadedID = model.navigationID
-            let css = (try? String(contentsOf: Bundle.module.url(forResource: "reader", withExtension: "css", subdirectory: "Resources")!, encoding: .utf8)) ?? ""
+            let css = ReaderAssets.text("reader", extension: "css") ?? ""
             let html = """
             <!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src dambak-resource: data:; style-src 'unsafe-inline'; script-src 'none'; connect-src 'none'; form-action 'none'"><style>\(css)</style></head><body><main>\(page.html)</main></body></html>
             """

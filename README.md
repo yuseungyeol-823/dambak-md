@@ -2,7 +2,9 @@
 
 macOS용 로컬 Markdown 읽기 앱입니다. 한 창에서 한 문서를 읽으며, 파일 선택·드래그 앤 드롭·Finder의 **다음으로 열기**를 지원합니다. 앱은 원본 Markdown 파일을 수정하지 않습니다.
 
-**바로 다운로드:** [최신 릴리스 페이지 열기](https://github.com/yuseungyeol-823/dambak-md/releases/latest) · [v0.1.1 macOS 앱 ZIP 직접 받기](https://github.com/yuseungyeol-823/dambak-md/releases/download/v0.1.1/DambakMD-v0.1.1-macOS.zip)
+**바로 다운로드:** [최신 릴리스 페이지 열기](https://github.com/yuseungyeol-823/dambak-md/releases/latest) · [v0.1.2 macOS 앱 ZIP 직접 받기](https://github.com/yuseungyeol-823/dambak-md/releases/download/v0.1.2/DambakMD-v0.1.2-macOS.zip)
+
+v0.1.2는 설치된 앱에서 문서를 열 때 종료되던 리소스 경로 문제를 수정합니다.
 
 <img src="Assets/DambakMD-preview.png" width="112" alt="담백 MD 앱 아이콘">
 
@@ -25,8 +27,8 @@ Finder에서 `.md` 또는 `.markdown` 파일을 우클릭해 **다음으로 열�
 
 ### 브라우저와 Finder로 설치
 
-1. [담백 MD v0.1.1 릴리스 페이지](https://github.com/yuseungyeol-823/dambak-md/releases/tag/v0.1.1)를 엽니다.
-2. **Assets**에서 **DambakMD-v0.1.1-macOS.zip**을 클릭해 다운로드합니다. GitHub가 자동으로 제공하는 **Source code (zip)**은 앱 실행 파일이 아니므로 선택하지 마세요.
+1. [담백 MD v0.1.2 릴리스 페이지](https://github.com/yuseungyeol-823/dambak-md/releases/tag/v0.1.2)를 엽니다.
+2. **Assets**에서 **DambakMD-v0.1.2-macOS.zip**을 클릭해 다운로드합니다. GitHub가 자동으로 제공하는 **Source code (zip)**은 앱 실행 파일이 아니므로 선택하지 마세요.
 3. Finder의 다운로드 폴더에서 ZIP을 더블클릭해 압축을 풉니다.
 4. 나온 **담백 MD.app**을 Finder의 **응용 프로그램** 폴더로 드래그한 뒤 실행합니다.
 
@@ -38,10 +40,10 @@ Finder에서 `.md` 또는 `.markdown` 파일을 우클릭해 **다음으로 열�
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/yuseungyeol-823/dambak-md/main/Scripts/install.sh -o /tmp/dambak-install.sh
-sh /tmp/dambak-install.sh 0.1.1
+sh /tmp/dambak-install.sh 0.1.2
 ```
 
-저장소를 이미 내려받았다면 `sh Scripts/install.sh 0.1.1`을 실행해도 됩니다.
+저장소를 이미 내려받았다면 `sh Scripts/install.sh 0.1.2`을 실행해도 됩니다.
 
 릴리스 ZIP과 체크섬은 GitHub Actions가 Intel·Apple Silicon 겸용 앱을 빌드해 게시합니다.
 

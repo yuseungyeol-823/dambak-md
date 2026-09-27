@@ -13,6 +13,12 @@ jobs:
         run: swift run DambakSelfTest
       - name: Build universal app
         run: ./Scripts/build-universal.sh
+      - name: Verify packaged reader assets
+        shell: bash
+        run: |
+          for asset in reader.js reader.css highlight.min.js; do
+            test -s ".build/담백 MD.app/Contents/Resources/DambakMD_DambakMD.bundle/Resources/${asset}"
+          done
       - name: Archive and checksum
         shell: bash
         run: |
