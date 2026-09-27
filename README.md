@@ -21,11 +21,14 @@ Finder에서 `.md` 또는 `.markdown` 파일을 우클릭해 **다음으로 열�
 
 [v0.1.0 릴리스](https://github.com/yuseungyeol-823/dambak-md/releases)에서 `DambakMD-v0.1.0-macOS.zip`을 받아 압축을 풀고 `담백 MD.app`을 `응용 프로그램`으로 옮길 수 있습니다. Apple Developer 서명·공증이 없는 개발 빌드이므로 첫 실행 시 macOS의 **개인정보 보호 및 보안**에서 사용자가 직접 열기를 허용해야 할 수 있습니다.
 
-터미널 설치는 저장소를 내려받은 뒤 다음처럼 실행합니다. 스크립트는 릴리스 ZIP과 SHA-256 파일을 받아 해시를 확인한 후 `~/Applications`에 앱을 복사합니다.
+터미널에서는 다음 두 명령으로 설치할 수 있습니다. 스크립트는 릴리스 ZIP과 SHA-256 파일을 받아 해시를 확인한 후 `~/Applications`에 앱을 복사합니다.
 
 ```sh
-sh Scripts/install.sh 0.1.0
+curl -fsSL https://raw.githubusercontent.com/yuseungyeol-823/dambak-md/main/Scripts/install.sh -o /tmp/dambak-install.sh
+sh /tmp/dambak-install.sh 0.1.0
 ```
+
+저장소를 이미 내려받았다면 `sh Scripts/install.sh 0.1.0`을 실행해도 됩니다.
 
 태그 `v0.1.0`을 푸시하면 GitHub Actions가 Intel·Apple Silicon 겸용 앱을 빌드해 ZIP과 체크섬을 Release에 올립니다. 릴리스 워크플로는 저장소가 공개된 뒤 실행되며, 배포 자산이 올라오기 전에는 위 다운로드 명령이 동작하지 않습니다.
 
