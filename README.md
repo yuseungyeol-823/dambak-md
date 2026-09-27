@@ -2,6 +2,8 @@
 
 macOS용 로컬 Markdown 읽기 앱입니다. 한 창에서 한 문서를 읽으며, 파일 선택·드래그 앤 드롭·Finder의 **다음으로 열기**를 지원합니다. 앱은 원본 Markdown 파일을 수정하지 않습니다.
 
+**바로 다운로드:** [최신 릴리스 페이지 열기](https://github.com/yuseungyeol-823/dambak-md/releases/latest) · [v0.1.0 macOS 앱 ZIP 직접 받기](https://github.com/yuseungyeol-823/dambak-md/releases/download/v0.1.0/DambakMD-v0.1.0-macOS.zip)
+
 ## 요구 환경과 빌드
 
 - 최소 지원: macOS 13 Ventura
